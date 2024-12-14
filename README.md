@@ -65,7 +65,7 @@
 ### 사전 준비
 - Java 17 이상
 - Docker 및 Docker Compose
-- PostgreSQL 데이터베이스
+- MariaDB
 
 ### 설치 및 실행
 1. 레포지토리 클론:
