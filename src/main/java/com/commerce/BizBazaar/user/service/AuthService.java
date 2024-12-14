@@ -13,7 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,13 @@ public class AuthService {
             return new ApiResponse<>(false, "User already exists", 400); // 이미 존재하는 경우
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 역할 앞에 "ROLE_" 접두사 추가
+        String roles = user.getRoles(); // "ADMIN,USER" 형태로 가정
+        String updatedRoles = Arrays.stream(roles.split(","))
+                .map(role -> role.trim().startsWith("ROLE_") ? role.trim() : "ROLE_" + role.trim()) // ROLE_이 없는 경우 추가
+                .collect(Collectors.joining(",")); // 다시 콤마로 조합
+
+        user.setRoles(updatedRoles); // 업데이트된 역할 설정
         userRepository.save(user);
         return new ApiResponse<>(true, "Registration successful", null, 200);
     }

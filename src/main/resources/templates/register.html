@@ -17,11 +17,15 @@
         <label for="password">비밀번호</label>
         <input type="password" id="password" name="password" required>
 
-        <label for="role">계정 유형</label>
-        <select id="role" name="role" required>
-            <option value="customer">고객</option>
-            <option value="vendor">판매자</option>
-        </select>
+        <label for="roles">계정 유형</label>
+        <div id="roles">
+            <label>
+                <input type="checkbox" name="roles" value="CUSTOMER"> 고객
+            </label>
+            <label>
+                <input type="checkbox" name="roles" value="VENDOR"> 판매자
+            </label>
+        </div>
 
         <button type="submit">회원가입</button>
     </form>

@@ -7,6 +7,7 @@ import com.commerce.BizBazaar.user.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,16 @@ public class AuthController {
         return "register"; // register.html로 이동
     }
 
+    @GetMapping("/vendor/dashboard")
+    public String vendorPage() {
+        return "vendor-dashboard";
+    }
+
+    @GetMapping("/customer/dashboard")
+    public String customerPage() {
+        return "customer-home";
+    }
+
     @PostMapping("/auth/register")
     public String register(@ModelAttribute User user) {
         // 회원가입 처리
@@ -35,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public String login(@RequestParam String username, @RequestParam String password, Model model, HttpServletResponse response) {
+    public String login(@RequestParam String username, @RequestParam String password, @RequestParam String role, Model model, HttpServletResponse response) {
         ApiResponse<AuthResponseDto> authResponse = authService.login(username, password);
 
         if (authResponse.getData() != null) {
@@ -45,7 +56,7 @@ public class AuthController {
 
             // Access Token을 쿠키에 저장
             Cookie accessTokenCookie = new Cookie("access_token", accessToken);
-            accessTokenCookie.setHttpOnly(true);  // JavaScript로 접근 불가
+            accessTokenCookie.setHttpOnly(true);
             accessTokenCookie.setMaxAge(3600);  // 1시간 유효
             accessTokenCookie.setPath("/");
 
@@ -59,12 +70,21 @@ public class AuthController {
             response.addCookie(accessTokenCookie);
             response.addCookie(refreshTokenCookie);
 
+            // role에 따라 리다이렉트 처리
+            if ("VENDOR".equalsIgnoreCase(role)) {
+                return "redirect:/vendor/dashboard";  // VENDOR 역할이면 판매자 대시보드로 리다이렉트
+            } else if ("CUSTOMER".equalsIgnoreCase(role)) {
+                return "redirect:/customer/dashboard";  // CUSTOMER 역할이면 고객 대시보드로 리다이렉트
+            }
+
             return "redirect:/";  // 로그인 성공 후 홈 화면으로 리다이렉트
         }
 
-        model.addAttribute("error", "Invalid username or password");
+        model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
         return "login";  // 로그인 실패 시 로그인 페이지로 돌아가기
     }
+
+
 
 
     @PostMapping("/refresh")
