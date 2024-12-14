@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Refresh Token</title>
+</head>
+<body>
+<h2>Refresh Token</h2>
+<form th:action="@{/auth/refresh}" method="POST">
+    <label for="refreshToken">Refresh Token:</label>
+    <input type="text" id="refreshToken" name="refreshToken" required><br><br>
+    <button type="submit">Refresh Token</button>
+</form>
+
+<div th:if="${newToken}">
+    <p>Your new token: <span th:text="${newToken}"></span></p>
+</div>
+
+<div th:if="${error}">
+    <p style="color: red;" th:text="${error}"></p>
+</div>
+</body>
+</html>
