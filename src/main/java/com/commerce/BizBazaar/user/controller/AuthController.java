@@ -73,7 +73,8 @@ public class AuthController {
             // role에 따라 리다이렉트 처리
             if ("VENDOR".equalsIgnoreCase(role)) {
                 return "redirect:/vendor/dashboard";  // VENDOR 역할이면 판매자 대시보드로 리다이렉트
-            } else if ("CUSTOMER".equalsIgnoreCase(role)) {
+            }
+            else if ("CUSTOMER".equalsIgnoreCase(role)) {
                 return "redirect:/customer/dashboard";  // CUSTOMER 역할이면 고객 대시보드로 리다이렉트
             }
 

@@ -7,6 +7,7 @@ import com.commerce.BizBazaar.user.entity.RefreshToken;
 import com.commerce.BizBazaar.user.entity.User;
 import com.commerce.BizBazaar.user.repository.RefreshTokenRepository;
 import com.commerce.BizBazaar.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,7 +47,11 @@ public class AuthService {
         return new ApiResponse<>(true, "Registration successful", null, 200);
     }
 
+    @Transactional
     public ApiResponse<AuthResponseDto> login(String username, String password) {
+        // 한 번만 조회하고 재사용
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
         try {
             // 인증 처리
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -55,11 +60,13 @@ public class AuthService {
             String accessToken = jwtUtil.generateToken(username);
             String refreshToken = jwtUtil.generateRefreshToken(username);
 
-            // RefreshToken을 DB에 저장
-            RefreshToken refreshTokenEntity = new RefreshToken();
+            // RefreshToken을 DB에 저장 (DB에 중복 INSERT가 발생하지 않도록)
+            RefreshToken refreshTokenEntity = refreshTokenRepository.findByUsername(username)
+                    .orElse(new RefreshToken());  // 기존 RefreshToken이 있으면 업데이트, 없으면 새로 생성
+
             refreshTokenEntity.setUsername(username);
             refreshTokenEntity.setRefreshToken(refreshToken);
-            refreshTokenRepository.save(refreshTokenEntity);
+            refreshTokenRepository.save(refreshTokenEntity);  // DB에 저장
 
             // AuthResponseDto 생성
             AuthResponseDto authResponse = new AuthResponseDto(accessToken, refreshToken);
@@ -71,6 +78,7 @@ public class AuthService {
             return new ApiResponse<>(false, "아이디 또는 비밀번호가 잘못되었습니다.", null, 401); // 로그인 실패
         }
     }
+
 
     public ApiResponse<String> refresh(String refreshToken) {
         if (jwtUtil.validateToken(refreshToken)) {
