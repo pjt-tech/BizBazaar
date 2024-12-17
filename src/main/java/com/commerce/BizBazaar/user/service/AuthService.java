@@ -8,8 +8,10 @@ import com.commerce.BizBazaar.user.entity.User;
 import com.commerce.BizBazaar.user.repository.RefreshTokenRepository;
 import com.commerce.BizBazaar.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -44,18 +47,29 @@ public class AuthService {
     }
 
     public ApiResponse<AuthResponseDto> login(String username, String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        String accessToken = jwtUtil.generateToken(username);
-        String refreshToken = jwtUtil.generateRefreshToken(username);
+        try {
+            // 인증 처리
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        // RefreshToken을 DB에 저장
-        RefreshToken refreshTokenEntity = new RefreshToken();
-        refreshTokenEntity.setUsername(username);
-        refreshTokenEntity.setRefreshToken(refreshToken);
-        refreshTokenRepository.save(refreshTokenEntity);
+            // 토큰 생성
+            String accessToken = jwtUtil.generateToken(username);
+            String refreshToken = jwtUtil.generateRefreshToken(username);
 
-        AuthResponseDto authResponse = new AuthResponseDto(accessToken, refreshToken);
-        return new ApiResponse<>(true, "Login successful", authResponse, 200); // 로그인 성공
+            // RefreshToken을 DB에 저장
+            RefreshToken refreshTokenEntity = new RefreshToken();
+            refreshTokenEntity.setUsername(username);
+            refreshTokenEntity.setRefreshToken(refreshToken);
+            refreshTokenRepository.save(refreshTokenEntity);
+
+            // AuthResponseDto 생성
+            AuthResponseDto authResponse = new AuthResponseDto(accessToken, refreshToken);
+            return new ApiResponse<>(true, "Login successful", authResponse, 200); // 로그인 성공
+
+        } catch (AuthenticationException e) {
+            // 인증 실패 시 에러 로그
+            log.error("Login failed for user: {}", username, e);
+            return new ApiResponse<>(false, "아이디 또는 비밀번호가 잘못되었습니다.", null, 401); // 로그인 실패
+        }
     }
 
     public ApiResponse<String> refresh(String refreshToken) {
