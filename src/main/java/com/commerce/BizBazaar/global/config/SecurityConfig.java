@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,7 +61,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // CORS 설정
                 .authorizeRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()  // 로그인, 회원가입은 인증 없이 접근 가능
-                        .requestMatchers("/", "/register", "/css/**").permitAll()
+                        .requestMatchers("/register", "/css/**").permitAll()  // 메인 페이지 및 정적 리소스 접근 허용
                         .requestMatchers("/vendor/**").hasRole("VENDOR")  // VENDOR 권한이 있는 사용자만 접근 가능
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")  // CUSTOMER 권한이 있는 사용자만 접근 가능
                         .anyRequest().authenticated()  // 나머지 요청은 인증 필요
@@ -71,10 +72,12 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/", true)  // 로그인 성공 후 홈 화면으로 리다이렉트
                         .failureUrl("/auth/login/fail?error=true")  // 로그인 실패 시 에러 메시지
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가하여 JWT 인증을 먼저 수행하도록 설정
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

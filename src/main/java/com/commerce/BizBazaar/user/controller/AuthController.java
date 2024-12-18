@@ -86,8 +86,6 @@ public class AuthController {
     }
 
 
-
-
     @PostMapping("/refresh")
     public String refresh(@RequestParam String refreshToken, Model model) {
         ApiResponse<String> response = authService.refresh(refreshToken);

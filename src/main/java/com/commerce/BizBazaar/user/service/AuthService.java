@@ -49,9 +49,6 @@ public class AuthService {
 
     @Transactional
     public ApiResponse<AuthResponseDto> login(String username, String password) {
-        // 한 번만 조회하고 재사용
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-
         try {
             // 인증 처리
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -72,7 +69,8 @@ public class AuthService {
             AuthResponseDto authResponse = new AuthResponseDto(accessToken, refreshToken);
             return new ApiResponse<>(true, "Login successful", authResponse, 200); // 로그인 성공
 
-        } catch (AuthenticationException e) {
+        }
+        catch (AuthenticationException e) {
             // 인증 실패 시 에러 로그
             log.error("Login failed for user: {}", username, e);
             return new ApiResponse<>(false, "아이디 또는 비밀번호가 잘못되었습니다.", null, 401); // 로그인 실패

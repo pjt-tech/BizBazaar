@@ -36,42 +36,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 먼저 Authorization 헤더에서 토큰을 추출
-        String token = extractTokenFromHeader(request);
+        // Authorization 헤더에서 토큰 추출
+        String token = extractTokenFromCookie(request);
 
-        // 만약 헤더에 토큰이 없다면, 쿠키에서 추출
-        if (token == null) {
-            token = extractTokenFromCookie(request);
-        }
-
-        // 토큰이 있고, 유효한지 검사
         if (token != null && jwtUtil.validateToken(token)) {
-            // Extract username from token
+            // 토큰에서 username 추출
             String username = jwtUtil.extractUsername(token);
 
-            // Load user details from username using CustomUserDetailsService
+            // DB에서 사용자 정보를 가져오는 대신, 이미 인증된 사용자가 있으면 SecurityContextHolder에 설정
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            // Create Authentication object and set it in the SecurityContext
+            // Authentication 객체 생성하여 SecurityContext에 설정
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // Set the authentication object in the SecurityContext
+            // 인증 정보를 SecurityContext에 설정
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 
-        // Continue with the filter chain
+        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 
-    private String extractTokenFromHeader(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7); // Extract token from "Bearer <token>"
-        }
-        return null;
-    }
+
 
     private String extractTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
