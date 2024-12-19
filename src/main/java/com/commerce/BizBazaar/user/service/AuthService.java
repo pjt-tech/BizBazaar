@@ -1,6 +1,7 @@
 package com.commerce.BizBazaar.user.service;
 
 import com.commerce.BizBazaar.global.dto.ApiResponse;
+import com.commerce.BizBazaar.user.dto.AuthRequestDto;
 import com.commerce.BizBazaar.user.dto.AuthResponseDto;
 import com.commerce.BizBazaar.user.entity.User;
 import com.commerce.BizBazaar.user.repository.UserRepository;
@@ -26,19 +27,31 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public ApiResponse<String> registerAsAdmin(String username, String password) {
+    public String registerAsAdmin(AuthRequestDto dto) {
+        String username = dto.getUsername();
+        String password = dto.getPassword();
+
+        // 이미 존재하는 사용자 체크
         if (userRepository.findByUsername(username).isPresent()) {
-            return new ApiResponse<>(false, "User already exists", 400); // 이미 존재하는 경우
+            return "redirect:/auth/register?error=User already exists"; // 이미 존재하는 경우 에러 메시지와 함께 리다이렉트
         }
 
-        // "ROLE_ADMIN" 역할을 자동으로 설정
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRoles("ROLE_ADMIN");
+        try {
+            // "ROLE_ADMIN" 역할을 자동으로 설정
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password)); // 비밀번호 암호화
+            user.setRoles("ROLE_ADMIN");
 
-        userRepository.save(user); // 관리자 계정 저장
-        return new ApiResponse<>(true, "Registration successful", 200);
+            // 관리자 계정 저장
+            userRepository.save(user);
+
+            // 성공적으로 회원가입된 경우 리다이렉트
+            return "redirect:/login?success=Registration successful";
+        } catch (Exception e) {
+            // 예외가 발생한 경우
+            return "redirect:/auth/register?error=Registration failed";
+        }
     }
 
     public ApiResponse<AuthResponseDto> login(String username, String password) {

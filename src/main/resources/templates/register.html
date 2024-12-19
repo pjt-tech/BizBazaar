@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"> <!-- 공통 CSS 링크 -->
 </head>
 <body>
-<h2>Register as Admin</h2>
-<form action="/auth/register" method="POST">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username"><br>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password"><br>
+<div class="container">
+    <h2>Register</h2>
 
-    <button type="submit">Register</button>
-</form>
+    <!-- 회원가입 성공 시 메시지 -->
+    <div th:if="${message}" class="alert success">
+        <p th:text="${message}"></p>
+    </div>
+
+    <!-- 회원가입 폼 -->
+    <form action="/auth/register" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <!-- 로그인 페이지 링크 -->
+    <div class="form-footer">
+        <p>Already have an account? <a href="/auth/login">Login here</a></p>
+    </div>
+</div>
+
 </body>
 </html>
