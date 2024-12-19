@@ -16,5 +16,5 @@ public class User {
     private Long id;
     private String username;
     private String password;
-    private String roles;
+    private String roles = "ROLE_ADMIN"; // "ROLE_ADMIN" 고정
 }

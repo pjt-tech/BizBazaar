@@ -1,38 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizBazaar - 회원가입</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <title>Register</title>
 </head>
 <body>
-<div class="register-container">
-    <h2>BizBazaar 계정을 생성하세요</h2>
+<h2>Register as Admin</h2>
+<form action="/auth/register" method="POST">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br>
 
-    <form action="/auth/register" method="post" class="register-form">
-        <label for="username">아이디</label>
-        <input type="text" id="username" name="username" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password"><br>
 
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
-
-        <label for="roles">계정 유형</label>
-        <div id="roles">
-            <label>
-                <input type="checkbox" name="roles" value="CUSTOMER"> 고객
-            </label>
-            <label>
-                <input type="checkbox" name="roles" value="VENDOR"> 판매자
-            </label>
-        </div>
-
-        <button type="submit">회원가입</button>
-    </form>
-
-    <div class="links">
-        <a href="/auth/login">이미 계정이 있으신가요? 로그인</a>
-    </div>
-</div>
+    <button type="submit">Register</button>
+</form>
 </body>
 </html>

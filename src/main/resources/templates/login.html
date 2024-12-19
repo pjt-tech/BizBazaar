@@ -1,39 +1,24 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizBazaar - 로그인</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <title>Login</title>
 </head>
 <body>
-<div class="login-container">
-    <h2>BizBazaar에 오신 것을 환영합니다</h2>
+<h2>Login</h2>
+<form action="/auth/login" method="POST">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br>
 
-    <form action="/auth/login" method="post" class="login-form">
-        <label for="username">아이디</label>
-        <input type="text" id="username" name="username" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password"><br>
 
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
+    <button type="submit">Login</button>
+</form>
 
-        <label for="role">계정 유형</label>
-        <select id="role" name="role" required>
-            <option value="CUSTOMER">고객</option>
-            <option value="VENDOR">판매자</option>
-        </select>
-
-        <button type="submit">로그인</button>
-    </form>
-
-    <div class="links">
-        <a href="/register">계정이 없으신가요? 회원가입</a>
-    </div>
-
-    <!-- 로그인 실패 시 오류 메시지 출력 -->
-    <div>
-        <p style="color: red;" th:if="${error != null}">아이디 또는 비밀번호가 잘못되었습니다.</p>
-    </div>
+<div th:if="${error}">
+    <p th:text="${error}"></p>
 </div>
 </body>
 </html>
