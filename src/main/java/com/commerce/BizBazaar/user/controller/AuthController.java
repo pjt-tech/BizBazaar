@@ -9,6 +9,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,48 +33,51 @@ public class AuthController {
         return "login";  // 로그인 페이지로 리다이렉트
     }
 
+
     @GetMapping("/register")
     public String registerPage() {
         return "register"; // 관리자 회원가입 페이지로 이동
     }
 
-    @PostMapping("/auth/register")
-    public String register(@RequestBody AuthRequestDto dto, RedirectAttributes redirectAttributes) {
+
+    @PostMapping("/api/auth/register")
+    public String register(@ModelAttribute AuthRequestDto dto, RedirectAttributes redirectAttributes) {
         try {
+            // 서비스에서 회원가입 처리를 요청
             authService.registerAsAdmin(dto);
             redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
-            return "redirect:/login";  // 회원가입 성공 후 로그인 페이지로 리다이렉트
+            return "redirect:/";  // 회원가입 성공 후 로그인 페이지로 리다이렉트
         }
         catch (IllegalArgumentException e) {
+            // 이미 존재하는 사용자가 있을 때 에러 메시지
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/auth/register";  // 에러 발생 시 회원가입 페이지로 리다이렉트
+            return "redirect:/register";  // 에러 발생 시 회원가입 페이지로 리다이렉트
         }
         catch (Exception e) {
+            // 기타 예외 처리
             redirectAttributes.addFlashAttribute("errorMessage", "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
-            return "redirect:/auth/register";  // 에러 발생 시 회원가입 페이지로 리다이렉트
+            return "redirect:/register";  // 에러 발생 시 회원가입 페이지로 리다이렉트
         }
     }
 
 
-    @PostMapping("/auth/login")
+    @PostMapping("/api/auth/login")
     public String login(@RequestParam String username, @RequestParam String password, Model model) {
         ApiResponse<AuthResponseDto> authResponse = authService.login(username, password);
 
-        if (authResponse.getData() != null) {
+        if (authResponse.isSuccess()) {
             String role = authResponse.getData().getRole();
 
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                return "redirect:/admin/dashboard";  // 관리자 대시보드로 리다이렉트
+            if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
+                return "redirect:/admin/dashboard";
+            }
+            else {
+                return "redirect:/user/home";
             }
         }
 
         model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
-        return "login";  // 로그인 실패 시 로그인 페이지로 돌아가기
-    }
-
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard() {
-        return "admin-dashboard"; // 관리자 대시보드 페이지
+        return "login";
     }
 }
 

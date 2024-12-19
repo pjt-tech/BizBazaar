@@ -42,3 +42,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.bootRun {
+	jvmArgs = ['-Dfile.encoding=UTF-8']
+}
+

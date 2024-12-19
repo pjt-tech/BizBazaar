@@ -1,48 +1,71 @@
 package com.commerce.BizBazaar.global.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 
-
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()  // API 요청을 위해 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // /auth/** 경로는 인증 없이 접근 가능
-                        .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자만 접근 가능
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()  // 정적 자원 허용
-                        .anyRequest().authenticated()  // 나머지 경로는 인증된 사용자만 접근 가능
+                        .requestMatchers("/api/auth/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/")  // 커스텀 로그인 페이지 경로
-                        .defaultSuccessUrl("/admin/dashboard")  // 로그인 성공 시 기본 경로
-                        .failureUrl("/login?error=true")  // 로그인 실패 시 이동 경로
-                        .permitAll()  // 모든 사용자 접근 가능
+                        .loginPage("/")
+                        .loginProcessingUrl("/api/auth/login")  // API 엔드포인트 변경
+                        .successHandler((request, response, authentication) -> {
+                            // 성공 시 리다이렉트
+                            response.sendRedirect("/admin/dashboard");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            log.error("Authentication failed: {}", exception.getMessage());
+                            String errorMessage = "";
+                            if (exception instanceof BadCredentialsException) {
+                                errorMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
+                            } else if (exception instanceof DisabledException) {
+                                errorMessage = "계정이 비활성화되었습니다.";
+                            } else if (exception instanceof LockedException) {
+                                errorMessage = "계정이 잠겼습니다.";
+                            } else {
+                                errorMessage = "로그인에 실패했습니다.";
+                            }
+                            // 오류 메시지를 request에 설정
+                            request.setAttribute("error", errorMessage);
+
+                            // 로그인 페이지로 포워딩
+                            request.getRequestDispatcher("/").forward(request, response);  // 로그인 페이지로 포워딩
+                        })
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // 로그아웃 요청 경로
-                        .logoutSuccessUrl("/login?logout=true")  // 로그아웃 성공 후 이동 경로
-                        .invalidateHttpSession(true)  // 세션 무효화
-                        .deleteCookies("JSESSIONID")  // JSESSIONID 쿠키 삭제
-                )
-                .csrf(AbstractHttpConfigurer::disable);  // CSRF 비활성화 (필요 시 활성화)
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // PasswordEncoder 빈 등록
+        return new BCryptPasswordEncoder();
     }
 }

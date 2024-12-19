@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="form-container">
+    <h2>관리자 대시보드</h2>
+    <div class="form-footer">
+        <p><a href="/auth/logout">로그아웃</a></p>
+    </div>
+
+    <h3>사용자 목록</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>아이디</th>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>등록일</th>
+            <th>수정</th>
+            <th>삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 여기서 th:each로 사용자 목록을 불러옵니다 -->
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.email}"></td>
+            <td><a href="/admin/edit/{user.id}">수정</a></td>
+            <td><a href="/admin/delete/{user.id}" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="form-footer">
+        <p><a href="/admin/create">새로운 사용자 추가</a></p>
+    </div>
+</div>
+</body>
+</html>
