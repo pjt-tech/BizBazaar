@@ -35,7 +35,6 @@ public class SecurityConfig {
                             response.sendRedirect("/admin/dashboard");
                         })
                         .failureHandler((request, response, exception) -> {
-                            log.error("Authentication failed: {}", exception.getMessage());
                             String errorMessage = "";
                             if (exception instanceof BadCredentialsException) {
                                 errorMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
