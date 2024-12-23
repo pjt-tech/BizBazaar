@@ -27,8 +27,8 @@ public class AdminController {
     // 관리자 대시보드 페이지
     @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
-        List<User> users = userService.getAllUsers();  // 사용자 목록 조회
-        model.addAttribute("users", users);
+        List<User> users = userService.getAllUsers();  // 관리자 목록 조회
+        model.addAttribute("admins", users);
         return "adminDashboard";
     }
 

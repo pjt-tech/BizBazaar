@@ -97,3 +97,43 @@ button:hover {
     color: #155724;
     border: 1px solid #c3e6cb;
 }
+
+
+/* 탭 스타일 */
+.tab {
+    display: none;
+}
+
+.tab-buttons {
+    display: flex;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.tab-buttons div {
+    margin-right: 20px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tab-buttons div.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.tab-content {
+    display: block;
+}
+
+.tab-content ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tab-content li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}

@@ -54,7 +54,8 @@ public class AuthService {
 
             // 관리자 계정 저장
             userRepository.save(user);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // 예외가 발생한 경우
             throw new RuntimeException("회원가입 중 문제가 발생했습니다.");  // 예외 처리
         }

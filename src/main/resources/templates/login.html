@@ -24,9 +24,9 @@
         <button type="submit">로그인</button>
     </form>
 
-    <!-- 로그인 실패 시 메시지 표시 -->
-    <div th:if="${error}">
-        <p style="color:red;" th:text="${error}"></p>
+    <!-- 에러 메시지 표시 -->
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <span th:text="${errorMessage}">Error Message</span>
     </div>
 
     <div class="form-footer">

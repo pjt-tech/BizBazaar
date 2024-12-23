@@ -7,39 +7,56 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<div class="form-container">
-    <h2>관리자 대시보드</h2>
-    <div class="form-footer">
-        <p><a href="/auth/logout">로그아웃</a></p>
-    </div>
+<h1>관리자 대시보드</h1>
 
-    <h3>사용자 목록</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>아이디</th>
-            <th>이름</th>
-            <th>이메일</th>
-            <th>등록일</th>
-            <th>수정</th>
-            <th>삭제</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- 여기서 th:each로 사용자 목록을 불러옵니다 -->
-        <tr th:each="user : ${users}">
-            <td th:text="${user.username}"></td>
-            <td th:text="${user.name}"></td>
-            <td th:text="${user.email}"></td>
-            <td><a href="/admin/edit/{user.id}">수정</a></td>
-            <td><a href="/admin/delete/{user.id}" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a></td>
-        </tr>
-        </tbody>
-    </table>
+<!-- 탭 버튼 -->
+<div class="tab-buttons">
+    <div class="tab-button" id="adminTabButton">관리자 목록</div>
+    <div class="tab-button" id="vendorTabButton">벤더 목록</div>
+    <div class="tab-button" id="customerTabButton">고객 목록</div>
+</div>
 
-    <div class="form-footer">
-        <p><a href="/admin/create">새로운 사용자 추가</a></p>
+<!-- 탭 내용 -->
+<div id="adminTab" class="tab">
+    <div class="tab-content">
+        <h2>관리자 목록</h2>
+        <ul id="adminList" th:each="admin : ${admins}">
+            <li>
+                <span th:text="${admin.name}">관리자 이름</span>
+                <button onclick="editAdmin(${admin.id})">수정</button>
+                <button onclick="deleteAdmin(${admin.id})">삭제</button>
+            </li>
+        </ul>
     </div>
 </div>
+
+<div id="vendorTab" class="tab">
+    <div class="tab-content">
+        <h2>벤더 목록</h2>
+        <ul id="vendorList" th:each="vendor : ${vendors}">
+            <li>
+                <span th:text="${vendor.name}">벤더 이름</span>
+                <button onclick="editVendor(${vendor.id})">수정</button>
+                <button onclick="deleteVendor(${vendor.id})">삭제</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="customerTab" class="tab">
+    <div class="tab-content">
+        <h2>고객 목록</h2>
+        <ul id="customerList" th:each="customer : ${customers}">
+            <li>
+                <span th:text="${customer.name}">고객 이름</span>
+                <button onclick="editCustomer(${customer.id})">수정</button>
+                <button onclick="deleteCustomer(${customer.id})">삭제</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- 자바스크립트 파일 링크 -->
+<script src="/js/adminDashboard.js"></script>
 </body>
 </html>

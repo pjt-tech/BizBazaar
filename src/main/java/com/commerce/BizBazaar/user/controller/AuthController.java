@@ -8,6 +8,7 @@ import com.commerce.BizBazaar.user.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +30,15 @@ public class AuthController {
 
 
     @GetMapping("/")
-    public String home() {
-        return "login";  // 로그인 페이지로 리다이렉트
+    public String home(HttpServletRequest request, Model model) {
+        // 세션에서 에러 메시지 가져오기
+        HttpSession session = request.getSession();
+        String errorMessage = (String) session.getAttribute("loginError");
+        if (errorMessage != null) {
+            model.addAttribute("errorMessage", errorMessage);
+            session.removeAttribute("loginError");  // 메시지를 표시한 후 제거
+        }
+        return "login";
     }
 
 
