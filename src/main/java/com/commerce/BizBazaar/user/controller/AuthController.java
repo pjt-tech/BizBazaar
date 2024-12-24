@@ -70,22 +70,35 @@ public class AuthController {
 
 
     @PostMapping("/api/auth/login")
-    public String login(@RequestParam String username, @RequestParam String password, Model model) {
+    public String login(@RequestParam String username, @RequestParam String password, Model model, HttpServletRequest request) {
         ApiResponse<AuthResponseDto> authResponse = authService.login(username, password);
 
         if (authResponse.isSuccess()) {
+            // 로그인 성공 시 세션에 사용자 정보 저장
+            HttpSession session = request.getSession();
+            session.setAttribute("user", authResponse.getData());  // 사용자 정보 저장
+
             String role = authResponse.getData().getRole();
 
             if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
-                return "redirect:/admin/dashboard";
-            }
-            else {
-                return "redirect:/user/home";
+                return "redirect:/home";  // 로그인 후 홈 화면으로 이동
+            } else {
+                return "redirect:/user/home";  // 일반 사용자 페이지로 이동
             }
         }
 
         model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
         return "login";
+    }
+
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();  // 세션 종료
+        }
+        return "redirect:/";  // 로그인 페이지로 리다이렉트
     }
 }
 
