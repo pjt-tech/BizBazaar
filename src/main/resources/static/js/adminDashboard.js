@@ -1,98 +1,72 @@
-// 탭 버튼들
-const adminTabButton = document.getElementById('adminTabButton');
-const vendorTabButton = document.getElementById('vendorTabButton');
-const customerTabButton = document.getElementById('customerTabButton');
+// 탭 클릭 시 호출되는 함수
+function showTab(tabName) {
+    // 모든 탭 내용 숨기기
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.style.display = 'none';
+    });
 
-// 탭들
-const adminTab = document.getElementById('adminTab');
-const vendorTab = document.getElementById('vendorTab');
-const customerTab = document.getElementById('customerTab');
+    // 탭 버튼 비활성화
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove('active');
+    });
 
-// 목록 요소들
-const adminListElement = document.getElementById('adminList');
-const vendorListElement = document.getElementById('vendorList');
-const customerListElement = document.getElementById('customerList');
+    // 클릭된 탭 버튼 활성화
+    document.getElementById(tabName + 'TabButton').classList.add('active');
 
-// 탭을 표시하는 함수
-function showTab(tabId) {
-    // 모든 탭 숨기기
-    adminTab.style.display = 'none';
-    vendorTab.style.display = 'none';
-    customerTab.style.display = 'none';
+    // 클릭된 탭 내용 표시
+    document.getElementById(tabName + 'Tab').style.display = 'block';
 
-    // 모든 탭 버튼 비활성화
-    adminTabButton.classList.remove('active');
-    vendorTabButton.classList.remove('active');
-    customerTabButton.classList.remove('active');
-
-    // 선택된 탭 표시
-    tabId.style.display = 'block';
+    // 해당 탭에 맞는 데이터 AJAX로 가져오기
+    fetchTabData(tabName);
 }
 
-// 탭 버튼 클릭 시 해당하는 탭 표시
-adminTabButton.addEventListener('click', () => {
-    showTab(adminTab);
-    adminTabButton.classList.add('active');
-    fetchAdminData();  // 관리자 목록 가져오기
-});
+// AJAX로 데이터를 가져오는 함수
+function fetchTabData(tabName) {
+    let url = '';
 
-vendorTabButton.addEventListener('click', () => {
-    showTab(vendorTab);
-    vendorTabButton.classList.add('active');
-    fetchVendorData();  // 벤더 목록 가져오기
-});
+    // 각 탭에 맞는 API URL 설정
+    if (tabName === 'admin') {
+        url = '/admin/admins';
+    }
+    else if (tabName === 'vendor') {
+        url = '/admin/vendors';
+    }
+    else if (tabName === 'customer') {
+        url = '/admin/customers';
+    }
 
-customerTabButton.addEventListener('click', () => {
-    showTab(customerTab);
-    customerTabButton.classList.add('active');
-    fetchCustomerData();  // 고객 목록 가져오기
-});
-
-// 데이터 가져오는 함수들
-function fetchAdminData() {
-    fetch('/api/admins')  // 관리자 목록을 가져오는 API 호출
-        .then(response => response.json())
-        .then(data => {
-            updateList(adminListElement, data);
-        })
-        .catch(error => {
-            console.error('Error fetching admin data:', error);
-        });
-}
-
-function fetchVendorData() {
-    fetch('/api/vendors')  // 벤더 목록을 가져오는 API 호출
-        .then(response => response.json())
-        .then(data => {
-            updateList(vendorListElement, data);
-        })
-        .catch(error => {
-            console.error('Error fetching vendor data:', error);
-        });
-}
-
-function fetchCustomerData() {
-    fetch('/api/customers')  // 고객 목록을 가져오는 API 호출
-        .then(response => response.json())
-        .then(data => {
-            updateList(customerListElement, data);
-        })
-        .catch(error => {
-            console.error('Error fetching customer data:', error);
-        });
-}
-
-// 목록을 동적으로 업데이트하는 함수
-function updateList(listElement, data) {
-    listElement.innerHTML = '';  // 기존 목록 비우기
-    data.forEach(item => {
-        const listItem = document.createElement('li');
-        listItem.textContent = item.name;  // 예시로 'name' 속성을 표시
-        listElement.appendChild(listItem);
+    // AJAX 요청
+    $.ajax({
+        url: url,  // 해당 탭에 맞는 데이터를 가져오는 API
+        method: 'GET',
+        success: function(data) {
+            updateTabContent(tabName, data);  // 데이터를 받아서 탭에 맞게 갱신
+        },
+        error: function(error) {
+            console.error(tabName + ' 데이터 조회 오류:', error);
+        }
     });
 }
 
-// 처음에 관리자 탭을 기본으로 활성화
-showTab(adminTab);
-adminTabButton.classList.add('active');
-fetchAdminData();  // 기본 관리자 목록 표시
+// 탭 내용을 업데이트하는 함수
+function updateTabContent(tabName, data) {
+    const listContainer = document.getElementById(tabName + 'List');
+    listContainer.innerHTML = '';  // 기존 내용을 비우고
+
+    data.forEach(item => {
+        let listItem = document.createElement('li');
+
+        // name과 email만 출력하고 줄바꿈 추가
+        let nameElement = document.createElement('div');
+        nameElement.textContent = `이름: ${item.name || '이름 없음'}`;
+        listItem.appendChild(nameElement);
+
+        let emailElement = document.createElement('div');
+        emailElement.textContent = `이메일: ${item.email || '이메일 없음'}`;
+        listItem.appendChild(emailElement);
+
+        listContainer.appendChild(listItem);
+    });
+}

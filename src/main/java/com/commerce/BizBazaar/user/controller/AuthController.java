@@ -48,7 +48,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/api/auth/register")
+    @PostMapping("/api/auth/signup")
     public String register(@ModelAttribute AuthRequestDto dto, RedirectAttributes redirectAttributes) {
         try {
             // 서비스에서 회원가입 처리를 요청
