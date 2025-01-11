@@ -28,6 +28,7 @@ public class SecurityConfig {
         http
                 .csrf().disable()  // API 요청을 위해 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/hc", "/env").permitAll()
                         .requestMatchers("/api/auth/**", "/css/**", "/static/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

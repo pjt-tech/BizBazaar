@@ -10,13 +10,6 @@ spring:
           http-only: true
           secure: true
 
-  datasource:
-    url: jdbc:mariadb://localhost:3306/bizbazaar
-    username: root
-    password: selvas1122!
-    driver-class-name: org.mariadb.jdbc.Driver
-    platform: mariadb
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -41,7 +34,7 @@ spring:
       green: green, common, secret
 
 server:
-  env:blue
+  env: blue
 
 ---
 
@@ -53,8 +46,7 @@ spring:
 server:
   port: 8080
   serverAddress: localhost
-
-serverName: local_server
+  serverName: local_server
 ---
 
 spring:
@@ -65,8 +57,7 @@ spring:
 server:
   port: 8080
   serverAddress: 43.202.13.182
-
-serverName: blue_server
+  serverName: blue_server
 ---
 
 spring:
@@ -77,6 +68,5 @@ spring:
 server:
   port: 8081
   serverAddress: 43.202.13.182
-
-serverName: green_server
+  serverName: green_server
 ---
