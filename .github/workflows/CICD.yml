@@ -110,17 +110,21 @@ jobs:
           script: |
             sudo docker exec -i nginxserver bash -c 'echo "set \$service_url ${{ env.TARGET_UPSTREAM }};" > /etc/nginx/conf.d/service-env.inc && nginx -s reload' 
   
-      - name: Stop current server (only if it exists)
+      - name: Stop and remove the previous container (only if it exists)
         uses: appleboy/ssh-action@master
         with:
           username: ubuntu
           host: ${{ secrets.LIVE_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Check if the container exists before stopping or removing it
-            if sudo docker ps -a --filter "name=${{env.CURRENT_UPSTREAM}}" --quiet; then
-              sudo docker stop ${{env.CURRENT_UPSTREAM}}
-              sudo docker rm ${{env.CURRENT_UPSTREAM}}
+            # Determine the currently running container (either blue or green)
+            CURRENT_RUNNING_CONTAINER=$(sudo docker ps --filter "name=${{ env.CURRENT_UPSTREAM }}" --quiet)
+            echo "Currently running container: $CURRENT_RUNNING_CONTAINER"
+            
+            if [ -n "$CURRENT_RUNNING_CONTAINER" ]; then
+              echo "Stopping and removing the current container: ${{ env.CURRENT_UPSTREAM }}"
+              sudo docker stop $CURRENT_RUNNING_CONTAINER
+              sudo docker rm $CURRENT_RUNNING_CONTAINER
             else
-              echo "Container ${{env.CURRENT_UPSTREAM}} does not exist."
+              echo "No running container named ${{ env.CURRENT_UPSTREAM }} found."
             fi
