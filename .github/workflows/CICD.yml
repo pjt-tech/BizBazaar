@@ -59,7 +59,7 @@ jobs:
           if [ "$STATUS" -eq 200 ]; then
             CURRENT_UPSTREAM=$(curl -s "http://${{ secrets.LIVE_SERVER_IP }}/env")
           else
-            CURRENT_UPSTREAM=green  # 기본은 green으로 설정
+            CURRENT_UPSTREAM=blue  # 기본은 blue로 설정
           fi
         
           echo "CURRENT_UPSTREAM=$CURRENT_UPSTREAM" >> $GITHUB_ENV
@@ -74,7 +74,7 @@ jobs:
             echo "STOPPED_PORT=8080" >> $GITHUB_ENV
             echo "TARGET_UPSTREAM=blue" >> $GITHUB_ENV
           else
-            echo "Error: Unexpected upstream value"  # 예외처리 (필요시)
+            echo "Error: Unexpected upstream value"
             exit 1
           fi
 
@@ -121,4 +121,4 @@ jobs:
           script_stop: true
           script: |
             sudo docker stop ${{env.CURRENT_UPSTREAM}}
-            sudo docker rm ${{env.CURRENT_UPSTREAM}}
+            sudo docker rm ${{env.CURRENT_UPSTREAM}} 
