@@ -49,14 +49,14 @@ jobs:
         run: |
           STATUS=$(curl -o /dev/null -w "%{http_code}" "http://${{ secrets.LIVE_SERVER_IP }}/env")
           echo "STATUS: $STATUS"
-          
+        
           # URL이 정상적으로 200을 반환하면 서버 상태 확인
-          if [ "$STATUS" = "200" ]; then
+          if [ "$STATUS" -eq 200 ]; then
             CURRENT_UPSTREAM=$(curl -s "http://${{ secrets.LIVE_SERVER_IP }}/env")
           else
             CURRENT_UPSTREAM=green  # 기본은 green으로 설정
           fi
-          
+        
           echo "CURRENT_UPSTREAM=$CURRENT_UPSTREAM" >> $GITHUB_ENV
 
           # 현재 서버 상태에 따라 포트 설정
@@ -72,6 +72,12 @@ jobs:
             echo "Error: Unexpected upstream value"  # 예외처리 (필요시)
             exit 1
           fi
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # 버전 확인
 
       - name: Docker compose
         uses: appleboy/ssh-action@master
